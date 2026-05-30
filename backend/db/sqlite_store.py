@@ -1,7 +1,7 @@
 import sqlite3
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent.parent / "data" / "gym_smith.db"
@@ -45,7 +45,7 @@ def create_user() -> str:
     with get_connection() as conn:
         conn.execute(
             "INSERT INTO users (session_token, created_at) VALUES (?, ?)",
-            (token, datetime.utcnow().isoformat()),
+            (token, datetime.now(timezone.utc).replace(tzinfo=None).isoformat()),
         )
     return token
 
@@ -73,7 +73,7 @@ def get_user_memory(user_id: int) -> dict | None:
 
 
 def upsert_user_memory(user_id: int, equipment: list, intensity: str, goal: str):
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).replace(tzinfo=None).isoformat()
     with get_connection() as conn:
         existing = conn.execute(
             "SELECT id FROM user_memory WHERE user_id = ?", (user_id,)
@@ -94,7 +94,7 @@ def save_plan(user_id: int, user_input: str, plan: dict):
     with get_connection() as conn:
         conn.execute(
             "INSERT INTO plan_history (user_id, user_input, plan_json, created_at) VALUES (?,?,?,?)",
-            (user_id, user_input, json.dumps(plan), datetime.utcnow().isoformat()),
+            (user_id, user_input, json.dumps(plan), datetime.now(timezone.utc).replace(tzinfo=None).isoformat()),
         )
 
 
