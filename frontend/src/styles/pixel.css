@@ -1,0 +1,72 @@
+:root {
+  --bg: #F5F0E8;
+  --card-bg: #FFFDF5;
+  --primary: #7BC67E;
+  --primary-dark: #5aaa5d;
+  --secondary: #A8D8A8;
+  --text: #2D2D2D;
+  --text-muted: #666;
+  --warning: #FF8A65;
+  --border: 2px solid #2D2D2D;
+  --shadow: 4px 4px 0px #2D2D2D;
+  --shadow-sm: 2px 2px 0px #2D2D2D;
+  --font-title: 'Press Start 2P', monospace;
+  --font-body: 'VT323', monospace;
+  --radius: 0px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 18px;
+  min-height: 100vh;
+}
+
+.pixel-card {
+  background: var(--card-bg);
+  border: var(--border);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.pixel-input {
+  background: var(--card-bg);
+  border: var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 10px 12px;
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+}
+
+.pixel-input:focus {
+  box-shadow: var(--shadow);
+}
+
+.tag {
+  display: inline-block;
+  background: var(--secondary);
+  border: 1px solid #2D2D2D;
+  padding: 2px 8px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  margin: 2px;
+}
+
+.warning-box {
+  background: #FFF3EE;
+  border: 2px solid var(--warning);
+  box-shadow: 4px 4px 0px var(--warning);
+  padding: 16px;
+  color: var(--text);
+}
+
+h1, h2, h3 { font-family: var(--font-title); line-height: 1.6; }
+h1 { font-size: 1.4rem; }
+h2 { font-size: 1rem; }
+h3 { font-size: 0.8rem; }
