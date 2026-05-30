@@ -101,7 +101,24 @@ def save_plan(user_id: int, user_input: str, plan: dict):
 def get_plan_history(user_id: int, limit: int = 5) -> list[dict]:
     with get_connection() as conn:
         rows = conn.execute(
-            "SELECT user_input, created_at FROM plan_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",
+            "SELECT id, user_input, plan_json, created_at FROM plan_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?",
             (user_id, limit),
         ).fetchall()
-    return [{"user_input": r["user_input"], "created_at": r["created_at"]} for r in rows]
+    return [
+        {
+            "id": r["id"],
+            "user_input": r["user_input"],
+            "plan": json.loads(r["plan_json"]),
+            "created_at": r["created_at"],
+        }
+        for r in rows
+    ]
+
+
+def delete_plan(user_id: int, plan_id: int) -> bool:
+    with get_connection() as conn:
+        cursor = conn.execute(
+            "DELETE FROM plan_history WHERE id = ? AND user_id = ?",
+            (plan_id, user_id),
+        )
+    return cursor.rowcount > 0

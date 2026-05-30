@@ -25,3 +25,8 @@ export async function generatePlan(sessionToken, apiKey, userInput) {
   })
   return data
 }
+
+export async function deletePlan(planId, sessionToken) {
+  const { data } = await api.delete(`/plan/${planId}`, { params: { session_token: sessionToken } })
+  return data
+}

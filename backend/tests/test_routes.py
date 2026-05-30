@@ -47,6 +47,24 @@ def test_get_session_memory(client):
     assert "memory" in data
     assert "history" in data
 
+def test_delete_plan_route(client):
+    import db.sqlite_store as store
+    token = client.post("/api/session").json()["session_token"]
+    user_id = store.get_user_id(token)
+    store.save_plan(user_id, "arms", {"weekly_schedule": []})
+    plan_id = store.get_plan_history(user_id)[0]["id"]
+    response = client.delete(f"/api/plan/{plan_id}", params={"session_token": token})
+    assert response.status_code == 200
+    assert response.json()["ok"] is True
+    assert store.get_plan_history(user_id) == []
+
+
+def test_delete_plan_not_found(client):
+    token = client.post("/api/session").json()["session_token"]
+    response = client.delete("/api/plan/9999", params={"session_token": token})
+    assert response.status_code == 404
+
+
 def test_generate_plan_medical_concern(client):
     token = client.post("/api/session").json()["session_token"]
     with patch("main.parse_intent") as mock_parse:

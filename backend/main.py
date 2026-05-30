@@ -7,7 +7,7 @@ import json
 
 from db.sqlite_store import (
     init_db, create_user, get_user_id, get_user_memory,
-    get_plan_history, upsert_user_memory, save_plan
+    get_plan_history, upsert_user_memory, save_plan, delete_plan
 )
 from init_knowledge_base import init_knowledge_base
 from pipeline.intent_parser import parse_intent
@@ -60,6 +60,16 @@ def get_session(token: str):
         "memory": get_user_memory(user_id),
         "history": get_plan_history(user_id),
     }
+
+
+@app.delete("/api/plan/{plan_id}")
+def delete_plan_route(plan_id: int, session_token: str):
+    user_id = get_user_id(session_token)
+    if user_id is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if not delete_plan(user_id, plan_id):
+        raise HTTPException(status_code=404, detail="Plan not found")
+    return {"ok": True}
 
 
 @app.post("/api/validate-key")

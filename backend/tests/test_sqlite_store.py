@@ -56,3 +56,26 @@ def test_save_and_get_plan_history(temp_db):
     history = temp_db.get_plan_history(user_id)
     assert len(history) == 1
     assert history[0]["user_input"] == "I want to build arms"
+    assert "id" in history[0]
+    assert history[0]["plan"] == plan
+
+
+def test_delete_plan(temp_db):
+    token = temp_db.create_user()
+    user_id = temp_db.get_user_id(token)
+    plan = {"weekly_schedule": []}
+    temp_db.save_plan(user_id, "arms", plan)
+    plan_id = temp_db.get_plan_history(user_id)[0]["id"]
+    assert temp_db.delete_plan(user_id, plan_id) is True
+    assert temp_db.get_plan_history(user_id) == []
+
+
+def test_delete_plan_wrong_user(temp_db):
+    token1 = temp_db.create_user()
+    token2 = temp_db.create_user()
+    uid1 = temp_db.get_user_id(token1)
+    uid2 = temp_db.get_user_id(token2)
+    temp_db.save_plan(uid1, "arms", {})
+    plan_id = temp_db.get_plan_history(uid1)[0]["id"]
+    assert temp_db.delete_plan(uid2, plan_id) is False
+    assert len(temp_db.get_plan_history(uid1)) == 1

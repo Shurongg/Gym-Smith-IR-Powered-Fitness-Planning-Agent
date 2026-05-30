@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { getSession, generatePlan } from '../api'
+import { getSession, generatePlan, deletePlan } from '../api'
 import SidebarMemory from '../components/SidebarMemory'
 import PlanCard from '../components/PlanCard'
 import IrProcessPanel from '../components/IrProcessPanel'
@@ -12,6 +12,7 @@ export default function MainPage({ apiKey, sessionToken }) {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
+  const [activePlanId, setActivePlanId] = useState(null)
   const planRef = useRef(null)
 
   useEffect(() => {
@@ -22,6 +23,29 @@ export default function MainPage({ apiKey, sessionToken }) {
     setResult(null)
     setInput('')
     setError(null)
+    setActivePlanId(null)
+  }
+
+  function handleHistoryClick(historyItem) {
+    setResult({ is_medical_concern: false, plan: historyItem.plan, ir_process: null })
+    setInput(historyItem.user_input)
+    setError(null)
+    setActivePlanId(historyItem.id)
+    setTimeout(() => planRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
+  }
+
+  async function handleHistoryDelete(planId) {
+    try {
+      await deletePlan(planId, sessionToken)
+      if (activePlanId === planId) {
+        setResult(null)
+        setInput('')
+        setActivePlanId(null)
+      }
+      getSession(sessionToken).then(setSessionData).catch(() => {})
+    } catch {
+      // silently ignore
+    }
   }
 
   async function handleGenerate() {
@@ -32,6 +56,7 @@ export default function MainPage({ apiKey, sessionToken }) {
     try {
       const data = await generatePlan(sessionToken, apiKey, input.trim())
       setResult(data)
+      setActivePlanId(null)
       if (!data.is_medical_concern) {
         getSession(sessionToken).then(setSessionData).catch(() => {})
         setTimeout(() => planRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
@@ -52,6 +77,9 @@ export default function MainPage({ apiKey, sessionToken }) {
         memory={sessionData?.memory}
         history={sessionData?.history}
         onNewPlan={handleNewPlan}
+        onHistoryClick={handleHistoryClick}
+        onHistoryDelete={handleHistoryDelete}
+        activePlanId={activePlanId}
       />
 
       <main style={{ flex: 1, padding: '24px', maxWidth: '800px' }}>

@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import '../styles/pixel.css'
 import PixelButton from './PixelButton'
 
-export default function SidebarMemory({ memory, history, onNewPlan }) {
+export default function SidebarMemory({ memory, history, onNewPlan, onHistoryClick, onHistoryDelete, activePlanId }) {
+  const [hoveredId, setHoveredId] = useState(null)
+
   return (
     <div style={{
       width: '220px', minHeight: '100vh', borderRight: 'var(--border)',
@@ -45,14 +48,51 @@ export default function SidebarMemory({ memory, history, onNewPlan }) {
         </h3>
         {history && history.length > 0 ? (
           <ul style={{ listStyle: 'none', fontFamily: 'var(--font-body)', fontSize: '15px' }}>
-            {history.map((h, i) => (
-              <li key={i} style={{ padding: '4px 0', borderBottom: '1px dashed #ccc',
-                                   overflow: 'hidden', textOverflow: 'ellipsis',
-                                   whiteSpace: 'nowrap', color: 'var(--text-muted)' }}
-                  title={h.user_input}>
-                · {h.user_input.slice(0, 22)}{h.user_input.length > 22 ? '…' : ''}
-              </li>
-            ))}
+            {history.map((h) => {
+              const isActive = h.id === activePlanId
+              const isHovered = h.id === hoveredId
+              return (
+                <li
+                  key={h.id}
+                  title={h.user_input}
+                  onClick={() => onHistoryClick && onHistoryClick(h)}
+                  onMouseEnter={() => setHoveredId(h.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  style={{
+                    padding: '5px 4px',
+                    borderBottom: '1px dashed #ccc',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '4px',
+                    background: isActive ? 'var(--secondary)' : isHovered ? '#eef8ee' : 'transparent',
+                    transition: 'background 0.1s',
+                  }}
+                >
+                  <span style={{
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    color: isActive ? 'var(--text)' : 'var(--text-muted)',
+                    flex: 1,
+                  }}>
+                    · {h.user_input.slice(0, 20)}{h.user_input.length > 20 ? '…' : ''}
+                  </span>
+                  {(isHovered || isActive) && (
+                    <button
+                      onClick={e => { e.stopPropagation(); onHistoryDelete && onHistoryDelete(h.id) }}
+                      title="Delete"
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--warning)', fontSize: '14px', lineHeight: 1,
+                        padding: '0 2px', flexShrink: 0,
+                      }}
+                    >
+                      ×
+                    </button>
+                  )}
+                </li>
+              )
+            })}
           </ul>
         ) : (
           <p style={{ fontFamily: 'var(--font-body)', fontSize: '16px', color: 'var(--text-muted)' }}>
