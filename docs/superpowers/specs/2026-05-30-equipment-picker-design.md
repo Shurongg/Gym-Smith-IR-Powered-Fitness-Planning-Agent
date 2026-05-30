@@ -35,6 +35,15 @@ Both wger and Free Exercise DB exercises go into the same `exercises` collection
 - wger IDs: existing integer strings (e.g. `"123"`)
 - Free Exercise DB IDs: prefixed `"fex_0001"`
 
+### Equipment Taxonomy
+
+GymSmith distinguishes two fundamentally different categories of gym equipment:
+
+- **`machine`** — fixed-path machines (selectorized, plate-loaded, leverage, Smith machine). Movement range is mechanically guided.
+- **`cable`** — cable/pulley systems (cable crossover, functional trainer, low row cable). Resistance direction is adjustable; not fixed-path.
+
+These are separate canonical values and separate chips in the UI. Users who say "I only want fixed machines" select `machine` only; "I have cable and machines" selects both.
+
 ### Canonical Equipment Normalization
 All equipment values are normalized at index time to a canonical lowercase set. The `equipment` metadata field stores a single canonical value per exercise.
 
@@ -129,17 +138,17 @@ Rendered inside `MainPage.jsx` between the textarea and the GENERATE PLAN button
 
 Nine chips in a flex-wrap row:
 
-| Chip label | `equipment_override` value |
-|------------|--------------------------|
-| Bodyweight | `bodyweight` |
-| Dumbbell | `dumbbell` |
-| Barbell | `barbell` |
-| Cable | `cable` |
-| Machine ▾ | `machine` (+ opens sub-panel) |
-| Bench | `bench` |
-| Pull-up bar | `pull-up bar` |
-| Kettlebell | `kettlebell` |
-| Resistance band | `resistance band` |
+| Chip label | `equipment_override` value | Note |
+|------------|--------------------------|------|
+| Bodyweight | `bodyweight` | |
+| Dumbbell | `dumbbell` | |
+| Barbell | `barbell` | |
+| Cable | `cable` | Cable/pulley station — separate from fixed machines |
+| Machine ▾ | `machine` | Fixed-path machines — opens sub-panel |
+| Bench | `bench` | |
+| Pull-up bar | `pull-up bar` | |
+| Kettlebell | `kettlebell` | |
+| Resistance band | `resistance band` | |
 
 **Chip styles:**
 - Unselected: off-white bg, 1px dashed border, muted text, VT323 font 16px
@@ -156,16 +165,23 @@ Expands below the chip row when Machine chip is selected. Contains:
 
 **Search box** — pixel-bordered input, placeholder `search machines...`, filters chips in real time (case-insensitive substring match on machine name). Groups with no matching machines are hidden.
 
-**Machine list grouped by body part:**
+**Machine list grouped by body part** (31 machines total):
 
 | Group | Machines |
 |-------|---------|
-| CHEST & PUSH | Chest press, Pec deck, Smith machine |
-| BACK & PULL | Lat pulldown, Seated row, Assisted pull-up |
-| LEGS | Leg press, Leg curl, Leg extension, Hip abductor, Hip adductor, Calf raise |
-| SHOULDERS | Shoulder press, Rear delt machine |
-| ARMS | Preacher curl, Tricep machine, Assisted dip |
-| CORE | Ab crunch machine, Back extension |
+| CHEST | Chest Press Machine · Incline Chest Press Machine · Decline Chest Press Machine · Pec Deck (Chest Fly) |
+| BACK | Lat Pulldown Machine · Seated Row Machine · Chest-Supported Row Machine · Assisted Pull-up Machine · Back Extension Machine |
+| SHOULDERS | Shoulder Press Machine · Lateral Raise Machine · Rear Delt Machine · Shrug Machine |
+| LEGS — QUADS | Leg Press Machine · Leg Extension Machine · Hack Squat Machine |
+| LEGS — HAMSTRINGS | Seated Leg Curl Machine · Lying Leg Curl Machine |
+| LEGS — GLUTES | Hip Thrust Machine · Glute Kickback Machine |
+| LEGS — ADDUCTORS | Hip Abductor Machine · Hip Adductor Machine |
+| CALVES | Seated Calf Raise Machine · Standing Calf Raise Machine |
+| ARMS | Preacher Curl Machine · Triceps Press Machine · Triceps Extension Machine · Assisted Dip Machine |
+| CORE | Ab Crunch Machine · Torso Rotation Machine |
+| COMPOUND | Smith Machine · Multi-Station Machine |
+
+Note: cable-based exercises (cable crossover, cable fly, cable curl, etc.) are **not** in this sub-panel — they are covered by the separate **Cable** chip.
 
 Each machine is a small chip (same style as top-level chips, smaller text). Multiple selection allowed.
 
