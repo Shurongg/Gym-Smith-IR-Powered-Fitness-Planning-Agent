@@ -10,6 +10,7 @@ async def fetch_all_exercises() -> list[dict]:
     async with aiohttp.ClientSession() as session:
         while url:
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                resp.raise_for_status()
                 data = await resp.json()
             for ex in data.get("results", []):
                 name = _english_name(ex)

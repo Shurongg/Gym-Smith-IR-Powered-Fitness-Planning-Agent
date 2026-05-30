@@ -43,11 +43,16 @@ def _init_rules():
         print("[KB] rules.json not found — skipping rules indexing.")
         return
 
-    rules_data = json.loads(RULES_PATH.read_text())
+    try:
+        rules_data = json.loads(RULES_PATH.read_text())
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"[KB] Failed to load rules.json: {e}")
+        return
+
     all_rules = (
-        rules_data["training_principles"]
-        + rules_data["recovery_rules"]
-        + rules_data["nutrition_rules"]
+        rules_data.get("training_principles", [])
+        + rules_data.get("recovery_rules", [])
+        + rules_data.get("nutrition_rules", [])
     )
 
     ids, documents, metadatas = [], [], []
@@ -65,10 +70,11 @@ def _init_rules():
     print(f"[KB] Indexed {len(ids)} rules.")
 
 
-def init_knowledge_base():
+async def init_knowledge_base():
+    """Idempotent KB init. Awaitable for use in FastAPI lifespan."""
     _init_rules()
-    asyncio.run(_init_exercises())
+    await _init_exercises()
 
 
 if __name__ == "__main__":
-    init_knowledge_base()
+    asyncio.run(init_knowledge_base())
