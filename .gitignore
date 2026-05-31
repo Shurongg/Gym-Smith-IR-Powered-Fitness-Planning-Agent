@@ -35,3 +35,6 @@ backend/data/*.db
 
 # Claude Code per-user settings
 .claude/
+
+# Superpowers plans/specs (local-only, not for GitHub)
+docs/superpowers/
