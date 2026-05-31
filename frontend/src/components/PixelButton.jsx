@@ -3,20 +3,20 @@ import '../styles/pixel.css'
 export default function PixelButton({ children, onClick, disabled, variant = 'primary', style = {} }) {
   const styles = {
     primary: {
-      background: disabled ? '#ccc' : 'var(--primary)',
-      border: 'var(--border)',
-      boxShadow: disabled ? 'none' : 'var(--shadow)',
-      color: 'var(--text)',
+      background: disabled ? '#d8c9b4' : 'var(--primary)',
+      border: 'var(--border-strong)',
+      boxShadow: disabled ? 'none' : 'var(--shadow-button)',
+      color: 'var(--bg-card)',
     },
     danger: {
-      background: disabled ? '#ccc' : 'var(--warning)',
-      border: 'var(--border)',
-      boxShadow: disabled ? 'none' : '4px 4px 0px #2D2D2D',
-      color: 'var(--text)',
+      background: disabled ? '#d8c9b4' : 'var(--warning)',
+      border: 'var(--border-strong)',
+      boxShadow: disabled ? 'none' : 'var(--shadow-button)',
+      color: 'var(--bg-card)',
     },
     ghost: {
       background: 'transparent',
-      border: 'var(--border)',
+      border: 'var(--border-strong)',
       boxShadow: 'none',
       color: 'var(--text)',
     },
@@ -36,7 +36,7 @@ export default function PixelButton({ children, onClick, disabled, variant = 'pr
         transition: 'box-shadow 0.1s, transform 0.1s',
         ...style,
       }}
-      onMouseDown={e => !disabled && (e.currentTarget.style.transform = 'translate(2px,2px)')}
+      onMouseDown={e => !disabled && (e.currentTarget.style.transform = 'translateY(3px)')}
       onMouseUp={e => !disabled && (e.currentTarget.style.transform = '')}
       onMouseLeave={e => (e.currentTarget.style.transform = '')}
     >

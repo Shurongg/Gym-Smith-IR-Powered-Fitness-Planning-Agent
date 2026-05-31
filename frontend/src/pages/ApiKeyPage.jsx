@@ -84,9 +84,9 @@ export default function ApiKeyPage({ onConnected }) {
         )}
 
         {status === 'ok' && (
-          <div style={{ marginTop: '16px', padding: '10px', background: '#e8f8e8',
-                        border: '2px solid var(--primary)', fontSize: '16px',
-                        fontFamily: 'var(--font-body)' }}>
+          <div style={{ marginTop: '16px', padding: '10px', background: 'var(--secondary-soft)',
+                        border: '2px solid var(--secondary)', fontSize: '16px',
+                        fontFamily: 'var(--font-body)', color: 'var(--text)' }}>
             ✓ Connected! Loading your workspace...
           </div>
         )}

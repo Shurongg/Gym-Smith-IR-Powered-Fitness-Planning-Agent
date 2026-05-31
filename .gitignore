@@ -13,6 +13,7 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+.pytest_cache/
 
 # Env files
 .env
@@ -23,8 +24,14 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Chroma / vector store
+# Chroma / vector store (regenerated on first launch)
 backend/data/chroma/
+
+# SQLite runtime data (per-user; regenerated on first launch)
+backend/data/*.db
 
 # Vite cache
 .vite/
+
+# Claude Code per-user settings
+.claude/

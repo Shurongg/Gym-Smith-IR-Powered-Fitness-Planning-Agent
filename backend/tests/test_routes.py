@@ -81,3 +81,31 @@ def test_generate_plan_medical_concern(client):
     data = response.json()
     assert data["is_medical_concern"] is True
     assert "professional" in data["message"].lower()
+
+def test_equipment_override_used_in_plan(client):
+    token = client.post("/api/session").json()["session_token"]
+    dummy_plan = {
+        "goal_summary": "Arm gains",
+        "equipment_needed": ["dumbbell"],
+        "weekly_schedule": [],
+        "nutrition_notes": [],
+        "safety_reminder": "Warm up first.",
+    }
+    with patch("main.parse_intent") as mock_parse, \
+         patch("main._run_agent_loop") as mock_agent:
+        mock_parse.return_value = {
+            "target_muscles": ["biceps"], "equipment": ["cable"],
+            "frequency": 3, "intensity": "medium", "goal": "hypertrophy", "flags": [],
+        }
+        mock_agent.return_value = (dummy_plan, {})
+
+        response = client.post("/api/plan", json={
+            "session_token": token,
+            "api_key": "sk-test",
+            "user_input": "I want arm gains",
+            "equipment_override": ["dumbbell"],
+            "specific_machines": [],
+        })
+
+    assert response.status_code == 200
+    assert mock_agent.call_args.kwargs["user_equipment"] == ["dumbbell"]

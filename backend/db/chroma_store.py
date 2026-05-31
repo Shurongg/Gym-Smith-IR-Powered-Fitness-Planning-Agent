@@ -1,6 +1,22 @@
+import os
+from pathlib import Path
+
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 import chromadb
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
-from pathlib import Path
+
+# chromadb 0.5.3 calls posthog.capture(user_id, event_name, properties) with
+# three positional args; the installed posthog no longer accepts that signature
+# and chromadb logs the resulting error.  Settings(anonymized_telemetry=False)
+# does not reliably stop it.  Replacing the actual telemetry method with a
+# no-op is the only fix that works in practice.
+try:
+    from chromadb.telemetry.product.posthog import Posthog as _ChromaPosthog
+    _ChromaPosthog._direct_capture = lambda self, event: None
+    _ChromaPosthog.capture = lambda self, event: None
+except Exception:
+    pass
 
 CHROMA_PATH = str(Path(__file__).parent.parent / "data" / "chroma")
 
@@ -11,7 +27,11 @@ _ef = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
 def get_client() -> chromadb.PersistentClient:
     global _client
     if _client is None:
-        _client = chromadb.PersistentClient(path=CHROMA_PATH)
+        Path(CHROMA_PATH).mkdir(parents=True, exist_ok=True)
+        _client = chromadb.PersistentClient(
+            path=CHROMA_PATH,
+            settings=chromadb.Settings(anonymized_telemetry=False),
+        )
     return _client
 
 

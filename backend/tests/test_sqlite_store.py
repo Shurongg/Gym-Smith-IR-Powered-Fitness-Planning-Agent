@@ -79,3 +79,21 @@ def test_delete_plan_wrong_user(temp_db):
     plan_id = temp_db.get_plan_history(uid1)[0]["id"]
     assert temp_db.delete_plan(uid2, plan_id) is False
     assert len(temp_db.get_plan_history(uid1)) == 1
+
+
+def test_upsert_and_get_specific_machines(temp_db):
+    token = temp_db.create_user()
+    user_id = temp_db.get_user_id(token)
+    temp_db.upsert_user_memory(
+        user_id, ["machine"], "medium", "strength",
+        specific_machines=["Leg Press Machine", "Lat Pulldown Machine"]
+    )
+    mem = temp_db.get_user_memory(user_id)
+    assert mem["specific_machines"] == ["Leg Press Machine", "Lat Pulldown Machine"]
+
+def test_specific_machines_defaults_to_empty_list(temp_db):
+    token = temp_db.create_user()
+    user_id = temp_db.get_user_id(token)
+    temp_db.upsert_user_memory(user_id, ["dumbbell"], "medium", "hypertrophy")
+    mem = temp_db.get_user_memory(user_id)
+    assert mem["specific_machines"] == []

@@ -1,15 +1,55 @@
+/*
+ * Cream + Peach + Sage + Wood palette
+ *
+ * Theme: "fresh pixel farm + warm fitness workshop"
+ * Designed to harmonise with the hero.png pixel artwork:
+ *   - cream backgrounds (#FFF4DA) match the gym wall
+ *   - peach CTAs (#F28B5B) echo the door/awning
+ *   - sage badges (#A8C686) pick up the garden grass
+ *   - lavender (#BFA3E6) is reserved as an accent, mirroring the dumbbells/clothing
+ *   - wood-brown text (#4B3224 / #6C4A35) and soft wood borders (#E7C99E)
+ *     give the whole UI the warm, hand-painted feel of the hero scene.
+ */
 :root {
-  --bg: #F5F0E8;
-  --card-bg: #FFFDF5;
-  --primary: #7BC67E;
-  --primary-dark: #5aaa5d;
-  --secondary: #A8D8A8;
-  --text: #2D2D2D;
-  --text-muted: #666;
-  --warning: #FF8A65;
-  --border: 2px solid #2D2D2D;
-  --shadow: 4px 4px 0px #2D2D2D;
-  --shadow-sm: 2px 2px 0px #2D2D2D;
+  /* ── Backgrounds ───────────────────────────────────────────── */
+  --bg-main: #FFF4DA;
+  --bg-soft: #FFECC2;
+  --bg-card: #FFF9EA;
+
+  /* ── Brand colors ──────────────────────────────────────────── */
+  --primary: #F28B5B;          /* peach CTA */
+  --primary-hover: #E87545;
+  --primary-shadow: #B85F38;
+
+  --secondary: #A8C686;        /* sage */
+  --secondary-soft: #E8F0D5;
+
+  --accent-purple: #BFA3E6;    /* small accent only */
+
+  --warning: #E87545;          /* re-use deep peach for warnings */
+  --warning-soft: #FFE3D2;
+
+  /* ── Text ──────────────────────────────────────────────────── */
+  --text: #4B3224;             /* dark wood brown */
+  --text-body: #6C4A35;        /* softer body brown */
+  --text-muted: #8B7355;       /* muted brown */
+
+  /* ── Borders & shadows ─────────────────────────────────────── */
+  --border-soft: 2px solid #E7C99E;        /* light wood, for cards */
+  --border-strong: 2px solid #4B3224;      /* dark wood, for buttons */
+  --wood-soft: #E7C99E;                    /* color-only, for ad-hoc dashed lines */
+  --wood-dark: #4B3224;                    /* color-only */
+  --shadow: 0 4px 0 #D7B37D;
+  --shadow-sm: 0 2px 0 #D7B37D;
+  --shadow-button: 0 3px 0 #B85F38;
+
+  /* ── Backwards-compat aliases (so old `var(--bg)` etc. still work) ── */
+  --bg: var(--bg-main);
+  --card-bg: var(--bg-card);
+  --primary-dark: var(--primary-hover);
+  --border: var(--border-strong);
+
+  /* ── Fonts ─────────────────────────────────────────────────── */
   --font-title: 'Press Start 2P', monospace;
   --font-body: 'VT323', monospace;
   --radius: 0px;
@@ -18,23 +58,25 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background-color: var(--bg);
+  background-color: var(--bg-main);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 18px;
   min-height: 100vh;
 }
 
+/* ── Card: soft wood border + warm shadow ─────────────────────── */
 .pixel-card {
-  background: var(--card-bg);
-  border: var(--border);
+  background: var(--bg-card);
+  border: var(--border-soft);
   box-shadow: var(--shadow);
   padding: 16px;
 }
 
+/* ── Input: stronger border so focus is obvious ───────────────── */
 .pixel-input {
-  background: var(--card-bg);
-  border: var(--border);
+  background: var(--bg-card);
+  border: var(--border-strong);
   box-shadow: var(--shadow-sm);
   padding: 10px 12px;
   font-family: var(--font-body);
@@ -48,25 +90,55 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* ── Tag: sage by default ─────────────────────────────────────── */
 .tag {
   display: inline-block;
-  background: var(--secondary);
-  border: 1px solid #2D2D2D;
+  background: var(--secondary-soft);
+  border: 1px solid var(--secondary);
   padding: 2px 8px;
   font-family: var(--font-body);
   font-size: 16px;
+  color: var(--text);
   margin: 2px;
 }
 
+/* ── Warning box: deep peach (re-used as warning hue) ─────────── */
 .warning-box {
-  background: #FFF3EE;
+  background: var(--warning-soft);
   border: 2px solid var(--warning);
-  box-shadow: 4px 4px 0px var(--warning);
+  box-shadow: 0 4px 0 var(--warning);
   padding: 16px;
   color: var(--text);
 }
 
-h1, h2, h3 { font-family: var(--font-title); line-height: 1.6; }
+/* ── Headings ─────────────────────────────────────────────────── */
+h1, h2, h3 { font-family: var(--font-title); line-height: 1.6; color: var(--text); }
 h1 { font-size: 1.4rem; }
 h2 { font-size: 1rem; }
 h3 { font-size: 0.8rem; }
+
+/* ── Dashboard grids (M1 layout) ──────────────────────────────── */
+/* Weekly schedule — responsive day-card grid */
+.weekly-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 20px;
+}
+@media (max-width: 1200px) {
+  .weekly-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .weekly-grid { grid-template-columns: 1fr; }
+}
+
+/* Nutrition + Safety — 2-col side-by-side */
+.aux-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 20px;
+}
+@media (max-width: 900px) {
+  .aux-grid { grid-template-columns: 1fr; }
+}

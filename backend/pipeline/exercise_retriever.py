@@ -1,19 +1,36 @@
 from db.chroma_store import query_collection
 
 
-def retrieve_exercises(target_muscles: list[str], goal: str, n_results: int = 20) -> list[dict]:
-    muscles_str = " ".join(target_muscles)
-    query = f"{muscles_str} {goal} exercises"
-    results = query_collection("exercises", query, n_results=n_results)
+def retrieve_exercises(
+    target_muscles: list[str],
+    goal: str,
+    specific_machines: list[str] | None = None,
+    equipment_hint: list[str] | None = None,
+    n_results_per_query: int = 15,
+) -> list[dict]:
+    seen_names: set[str] = set()
+    exercises: list[dict] = []
 
-    exercises = []
-    for meta in results["metadatas"][0]:
-        exercises.append({
-            "name": meta.get("name", ""),
-            "category": meta.get("category", ""),
-            "muscles": meta.get("muscles", ""),
-            "muscles_secondary": meta.get("muscles_secondary", ""),
-            "equipment": meta.get("equipment", "None"),
-            "description": meta.get("description", ""),
-        })
+    def _absorb(results: dict) -> None:
+        for meta in results["metadatas"][0]:
+            name = meta.get("name", "")
+            if name and name not in seen_names:
+                seen_names.add(name)
+                exercises.append({
+                    "name": name,
+                    "category": meta.get("category", ""),
+                    "muscles": meta.get("muscles", ""),
+                    "muscles_secondary": meta.get("muscles_secondary", ""),
+                    "equipment": meta.get("equipment", "None"),
+                    "description": meta.get("description", ""),
+                })
+
+    equip_str = " ".join(equipment_hint[:2]) if equipment_hint else ""
+    queries = [f"{m} {goal} {equip_str} exercises".strip() for m in target_muscles] or [f"{goal} exercises"]
+    for q in queries:
+        _absorb(query_collection("exercises", q, n_results=n_results_per_query))
+
+    for machine in (specific_machines or []):
+        _absorb(query_collection("exercises", f"{machine} exercises", n_results=10))
+
     return exercises
