@@ -36,8 +36,22 @@ _MUSCLES_SET = set(ATOMIC_MUSCLES)
 _DESCRIPTION_MAX_CHARS = 400
 
 
-def _slugify(token: str) -> str:
-    return token.replace("-", "_").replace(" ", "_")
+def slugify(token: str) -> str:
+    """Canonical slug for atomic equipment / muscle names AND user input.
+
+    Lowercases first (so mixed-case user input like 'Dumbbell' produces the same
+    key as the ingest-time atom 'dumbbell'), then replaces '-' and ' ' with '_'.
+    Used by equipment_booleans/muscle_booleans (ingest side) AND by
+    equipment_filter (query side) — single canonical rule prevents drift.
+    """
+    return token.lower().replace("-", "_").replace(" ", "_")
+
+
+# Canonical tuple of the 9 equipment boolean field names, derived from
+# ATOMIC_EQUIPMENT so consumers can never drift out of sync with ingest.
+EQUIPMENT_BOOLEAN_KEYS: tuple[str, ...] = tuple(
+    f"equipment_{slugify(a)}" for a in ATOMIC_EQUIPMENT
+)
 
 
 def parse_equipment(raw: str) -> set[str]:
@@ -64,11 +78,11 @@ def parse_muscles(raw: str) -> set[str]:
 
 
 def equipment_booleans(atoms: set[str]) -> dict[str, bool]:
-    return {f"equipment_{_slugify(a)}": (a in atoms) for a in ATOMIC_EQUIPMENT}
+    return {f"equipment_{slugify(a)}": (a in atoms) for a in ATOMIC_EQUIPMENT}
 
 
 def muscle_booleans(atoms: set[str], prefix: str) -> dict[str, bool]:
-    return {f"{prefix}{_slugify(a)}": (a in atoms) for a in ATOMIC_MUSCLES}
+    return {f"{prefix}{slugify(a)}": (a in atoms) for a in ATOMIC_MUSCLES}
 
 
 def build_exercise_metadata(

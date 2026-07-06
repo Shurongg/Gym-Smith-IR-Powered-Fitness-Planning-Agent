@@ -1,4 +1,5 @@
 from db.chroma_store import query_collection
+from pipeline.normalize import EQUIPMENT_BOOLEAN_KEYS
 
 
 def retrieve_exercises(
@@ -10,12 +11,6 @@ def retrieve_exercises(
 ) -> list[dict]:
     seen_names: set[str] = set()
     exercises: list[dict] = []
-
-    _EQ_BOOL_KEYS = (
-        "equipment_barbell", "equipment_bench", "equipment_dumbbell",
-        "equipment_pull_up_bar", "equipment_bodyweight", "equipment_cable",
-        "equipment_kettlebell", "equipment_machine", "equipment_resistance_band",
-    )
 
     def _absorb(results: dict) -> None:
         for meta in results["metadatas"][0]:
@@ -30,7 +25,7 @@ def retrieve_exercises(
                     "equipment": meta.get("equipment", "None"),
                     "description": meta.get("description", ""),
                 }
-                for k in _EQ_BOOL_KEYS:
+                for k in EQUIPMENT_BOOLEAN_KEYS:
                     out[k] = bool(meta.get(k, False))
                 exercises.append(out)
 

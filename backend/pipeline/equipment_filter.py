@@ -7,19 +7,16 @@ pipeline/normalize.py at ingest time. Legacy name-inference fallback for
 cable/machine kept as a defensive net for freeexdb rows where ingest
 didn't tag equipment correctly (out of the normalization spec's scope).
 """
+from pipeline.normalize import slugify
 
 _NAME_INFERRED_EQUIPMENT = {"cable", "machine"}
-
-
-def _slug(equipment_name: str) -> str:
-    return equipment_name.lower().replace("-", "_").replace(" ", "_")
 
 
 def filter_by_equipment(exercises: list[dict], user_equipment: list[str]) -> list[dict]:
     if not user_equipment:
         return exercises
 
-    selected_slugs = {_slug(e) for e in user_equipment}
+    selected_slugs = {slugify(e) for e in user_equipment}
     selected_lower = {e.lower() for e in user_equipment}
     name_check = selected_lower & _NAME_INFERRED_EQUIPMENT
 
