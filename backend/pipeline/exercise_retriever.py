@@ -11,19 +11,28 @@ def retrieve_exercises(
     seen_names: set[str] = set()
     exercises: list[dict] = []
 
+    _EQ_BOOL_KEYS = (
+        "equipment_barbell", "equipment_bench", "equipment_dumbbell",
+        "equipment_pull_up_bar", "equipment_bodyweight", "equipment_cable",
+        "equipment_kettlebell", "equipment_machine", "equipment_resistance_band",
+    )
+
     def _absorb(results: dict) -> None:
         for meta in results["metadatas"][0]:
             name = meta.get("name", "")
             if name and name not in seen_names:
                 seen_names.add(name)
-                exercises.append({
+                out = {
                     "name": name,
                     "category": meta.get("category", ""),
                     "muscles": meta.get("muscles", ""),
                     "muscles_secondary": meta.get("muscles_secondary", ""),
                     "equipment": meta.get("equipment", "None"),
                     "description": meta.get("description", ""),
-                })
+                }
+                for k in _EQ_BOOL_KEYS:
+                    out[k] = bool(meta.get(k, False))
+                exercises.append(out)
 
     equip_str = " ".join(equipment_hint[:2]) if equipment_hint else ""
     queries = [f"{m} {goal} {equip_str} exercises".strip() for m in target_muscles] or [f"{goal} exercises"]

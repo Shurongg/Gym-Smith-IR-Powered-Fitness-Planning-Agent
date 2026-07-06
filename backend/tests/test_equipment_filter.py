@@ -1,12 +1,25 @@
 from pipeline.equipment_filter import filter_by_equipment
 
+def _ex(name: str, **eq_booleans) -> dict:
+    """Build a fixture exercise with all 9 equipment_* booleans defaulting False."""
+    base = {
+        "equipment_barbell": False, "equipment_bench": False,
+        "equipment_dumbbell": False, "equipment_pull_up_bar": False,
+        "equipment_bodyweight": False, "equipment_cable": False,
+        "equipment_kettlebell": False, "equipment_machine": False,
+        "equipment_resistance_band": False,
+    }
+    base.update(eq_booleans)
+    return {"name": name, **base}
+
+
 EXERCISES = [
-    {"name": "Bicep Curl", "equipment": "dumbbell"},
-    {"name": "Barbell Row", "equipment": "barbell"},
-    {"name": "Pull-up", "equipment": "pull-up bar"},
-    {"name": "Push-up", "equipment": "bodyweight"},
-    {"name": "Cable Fly", "equipment": "cable"},
-    {"name": "Combo", "equipment": "barbell, dumbbell"},
+    _ex("Bicep Curl", equipment_dumbbell=True),
+    _ex("Barbell Row", equipment_barbell=True),
+    _ex("Pull-up", equipment_pull_up_bar=True),
+    _ex("Push-up", equipment_bodyweight=True),
+    _ex("Cable Fly", equipment_cable=True),
+    _ex("Combo", equipment_barbell=True, equipment_dumbbell=True),
 ]
 
 def test_filter_keeps_matching_equipment():
