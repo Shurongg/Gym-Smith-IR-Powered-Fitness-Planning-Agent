@@ -1,9 +1,15 @@
 import asyncio
 import re
+import sys
 from pathlib import Path
 from data.wger_client import fetch_all_exercises
 from data.freeexdb_client import fetch_free_exercise_db, normalize_equipment
-from db.chroma_store import collection_exists_with_data, upsert_documents
+from db.chroma_store import (
+    collection_exists_with_data,
+    get_client,
+    upsert_documents,
+)
+from pipeline.normalize import build_exercise_metadata
 
 RULES_DIR = Path(__file__).parent / "data" / "rules"
 
@@ -123,14 +129,14 @@ async def _init_exercises():
         doc = f"{ex['name']} - {ex['category']} - muscles: {muscles_str} - {ex['description']}"
         ids.append(ex_id)
         documents.append(doc[:1500])
-        metadatas.append({
-            "name": ex["name"],
-            "category": ex["category"],
-            "muscles": muscles_str,
-            "muscles_secondary": ", ".join(ex["muscles_secondary"]),
-            "equipment": eq,
-            "description": ex["description"][:400],
-        })
+        metadatas.append(build_exercise_metadata(
+            name=ex["name"],
+            category=ex["category"],
+            muscles_str=muscles_str,
+            muscles_secondary_str=", ".join(ex["muscles_secondary"]),
+            equipment_str=eq,
+            description=ex["description"],
+        ))
 
     for ex in fex_exercises:
         eq = ", ".join(ex["equipment"])
@@ -142,14 +148,14 @@ async def _init_exercises():
         doc = f"{ex['name']} - {ex['category']} - muscles: {muscles_str} - {ex['description']}"
         ids.append(ex_id)
         documents.append(doc[:1500])
-        metadatas.append({
-            "name": ex["name"],
-            "category": ex["category"],
-            "muscles": muscles_str,
-            "muscles_secondary": ", ".join(ex["muscles_secondary"]),
-            "equipment": eq,
-            "description": ex["description"][:400],
-        })
+        metadatas.append(build_exercise_metadata(
+            name=ex["name"],
+            category=ex["category"],
+            muscles_str=muscles_str,
+            muscles_secondary_str=", ".join(ex["muscles_secondary"]),
+            equipment_str=eq,
+            description=ex["description"],
+        ))
 
     upsert_documents("exercises", ids, documents, metadatas)
     print(f"[KB] Indexed {len(ids)} exercises ({len(wger_exercises)} wger + {len(fex_exercises)} freeexdb).")
@@ -161,5 +167,15 @@ async def init_knowledge_base():
     await _init_exercises()
 
 
+def _drop_exercises_collection() -> None:
+    try:
+        get_client().delete_collection("exercises")
+        print("[KB] Dropped existing 'exercises' collection.")
+    except Exception as e:
+        print(f"[KB] No existing 'exercises' collection to drop ({e!s}).")
+
+
 if __name__ == "__main__":
+    if "--rebuild" in sys.argv:
+        _drop_exercises_collection()
     asyncio.run(init_knowledge_base())
