@@ -29,6 +29,12 @@ MUSCLE_ALIASES: dict[str, str] = {
 _EQUIPMENT_SET = set(ATOMIC_EQUIPMENT)
 _MUSCLES_SET = set(ATOMIC_MUSCLES)
 
+# Chroma stores metadata inline; existing ingest convention (see
+# init_knowledge_base.py) caps description at 400 chars to keep the
+# per-row metadata payload small. Long-form text lives in the document
+# body, which the embedding model indexes separately.
+_DESCRIPTION_MAX_CHARS = 400
+
 
 def _slugify(token: str) -> str:
     return token.replace("-", "_").replace(" ", "_")
@@ -91,7 +97,7 @@ def build_exercise_metadata(
         "muscles": muscles_str,
         "muscles_secondary": muscles_secondary_str,
         "equipment": equipment_str,
-        "description": description[:400],
+        "description": description[:_DESCRIPTION_MAX_CHARS],
         # explicit raw aliases per spec
         "equipment_raw": equipment_str,
         "muscles_raw": muscles_str,

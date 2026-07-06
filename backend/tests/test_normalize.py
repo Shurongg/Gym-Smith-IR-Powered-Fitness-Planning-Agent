@@ -234,6 +234,26 @@ class TestT5_RawFieldsPreserved:
         assert meta["muscles"] == "biceps"
         assert meta["muscles_secondary"] == "glutes"
 
+    def test_description_truncated_to_400_chars(self):
+        # Ingest convention: description field on metadata is capped so the
+        # per-row payload stays small; full text still lives in the document body.
+        long_desc = "x" * 500
+        meta = build_exercise_metadata(
+            name="Test", category="Chest", muscles_str="",
+            muscles_secondary_str="", equipment_str="bodyweight",
+            description=long_desc,
+        )
+        assert len(meta["description"]) == 400
+        assert meta["description"] == "x" * 400
+
+    def test_description_shorter_than_cap_preserved(self):
+        meta = build_exercise_metadata(
+            name="Test", category="Chest", muscles_str="",
+            muscles_secondary_str="", equipment_str="bodyweight",
+            description="short",
+        )
+        assert meta["description"] == "short"
+
 
 class TestT6_CategoryLowercased:
     """Spec T6: category is lowercased at build time; Cardio/cardio dedup is gone."""
